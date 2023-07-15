@@ -3,15 +3,18 @@ const getRequestHeader = require('getRequestHeader');
 const logToConsole = require('logToConsole');
 const getContainerVersion = require('getContainerVersion');
 const sendHttpRequest = require('sendHttpRequest');
+const encodeUri = require('encodeUri');
 
 const isLoggingEnabled = determinateIsLoggingEnabled();
 const traceId = getRequestHeader('trace-id');
 
-const postUrl = data.url + '/rest/v1/' + data.tableName;
+const postUrl = data.url + '/rest/v1/' + enc(data.tableName);
 
 let postBody = {};
-data.dataList.forEach(d => {postBody[d.name] = d.value;});
 
+if (data.dataList) {
+    data.dataList.forEach(d => {postBody[d.name] = d.value;});
+}
 
 if (isLoggingEnabled) {
     logToConsole(JSON.stringify({
@@ -79,4 +82,9 @@ function determinateIsLoggingEnabled() {
     }
 
     return data.logType === 'always';
+}
+
+function enc(data) {
+    data = data || '';
+    return encodeUri(data);
 }
