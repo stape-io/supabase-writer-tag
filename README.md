@@ -6,6 +6,8 @@ Integrate your website with Supabase, an open-source alternative to Firebase. Su
 - Write any data from server GTM to Supabase.
 - Return an array of Supabase documents that match specified query conditions.
 
+## Useful link:
+ https://stape.io/blog/supabase-writer-tag-for-server-google-tag-manager
 
 ## Open Source
 
