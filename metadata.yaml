@@ -1,5 +1,7 @@
 homepage: "https://stape.io/"
 versions:
+  - sha: f5843526f1b8382f57414ee9a401d280954b1351
+    changeNotes: Logging removal.
   - sha: b3c7e86a9260fa3053fe4371e88ec0a8df6add9d
     changeNotes: Fix issue with encoding.
   - sha: 5731b7181e514cfb7869f4109cac6708ca2eaada
