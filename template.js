@@ -1,90 +1,58 @@
-﻿const JSON = require('JSON');
-const getRequestHeader = require('getRequestHeader');
-const logToConsole = require('logToConsole');
-const getContainerVersion = require('getContainerVersion');
+﻿const encodeUriComponent = require('encodeUriComponent');
+const getType = require('getType');
+const JSON = require('JSON');
+const makeString = require('makeString');
 const sendHttpRequest = require('sendHttpRequest');
-const encodeUri = require('encodeUri');
 
-const isLoggingEnabled = determinateIsLoggingEnabled();
-const traceId = getRequestHeader('trace-id');
+/*==============================================================================
+==============================================================================*/
 
 const postUrl = data.url + '/rest/v1/' + enc(data.tableName);
 
 let postBody = {};
 
 if (data.dataList) {
-    data.dataList.forEach(d => {postBody[d.name] = d.value;});
+  data.dataList.forEach((d) => {
+    postBody[d.name] = d.value;
+  });
 }
 
-if (isLoggingEnabled) {
-    logToConsole(JSON.stringify({
-        'Name': 'SupabaseWriter',
-        'Type': 'Request',
-        'TraceId': traceId,
-        'EventName': data.mode,
-        'RequestMethod': 'POST',
-        'RequestUrl': postUrl,
-        'RequestBody': postBody,
-    }));
-}
-
-sendHttpRequest(postUrl, (statusCode, headers, body) => {
-    if (isLoggingEnabled) {
-        logToConsole(JSON.stringify({
-            'Name': 'SupabaseWriter',
-            'Type': 'Response',
-            'TraceId': traceId,
-            'EventName': data.mode,
-            'ResponseStatusCode': statusCode,
-            'ResponseHeaders': headers,
-            'ResponseBody': body,
-        }));
-    }
-
+sendHttpRequest(
+  postUrl,
+  (statusCode, headers, body) => {
     if (statusCode >= 200 && statusCode < 400) {
-        data.gtmOnSuccess();
+      data.gtmOnSuccess();
     } else {
-        data.gtmOnFailure();
+      data.gtmOnFailure();
     }
-}, {headers: generateHeaders(), method: 'POST'}, JSON.stringify(postBody));
+  },
+  { headers: generateHeaders(), method: 'POST' },
+  JSON.stringify(postBody)
+);
+
+/*==============================================================================
+  Vendor related functions
+==============================================================================*/
 
 function generateHeaders() {
-    let headers = {
-        'Content-Type': 'application/json',
-        'apikey': data.apiKey,
-        'Authorization': 'Bearer ' + data.apiKey,
-    };
+  const headers = {
+    'Content-Type': 'application/json',
+    apikey: data.apiKey,
+    Authorization: 'Bearer ' + data.apiKey
+  };
 
-    if (data.mode === 'upsert') {
-        headers['Prefer'] = 'resolution=merge-duplicates';
-    }
+  if (data.mode === 'upsert') {
+    headers['Prefer'] = 'resolution=merge-duplicates';
+  }
 
-    return headers;
+  return headers;
 }
 
-function determinateIsLoggingEnabled() {
-    const containerVersion = getContainerVersion();
-    const isDebug = !!(
-        containerVersion &&
-        (containerVersion.debugMode || containerVersion.previewMode)
-    );
-
-    if (!data.logType) {
-        return isDebug;
-    }
-
-    if (data.logType === 'no') {
-        return false;
-    }
-
-    if (data.logType === 'debug') {
-        return isDebug;
-    }
-
-    return data.logType === 'always';
-}
+/*==============================================================================
+  Helpers
+==============================================================================*/
 
 function enc(data) {
-    data = data || '';
-    return encodeUri(data);
+  if (['null', 'undefined'].indexOf(getType(data)) !== -1) data = '';
+  return encodeUriComponent(makeString(data));
 }
