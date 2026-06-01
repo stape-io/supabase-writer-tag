@@ -1,4 +1,5 @@
-homepage: "https://stape.io/"
+homepage: 'https://stape.io/'
+documentation: 'https://github.com/stape-io/supabase-writer-tag'
 versions:
   - sha: f5843526f1b8382f57414ee9a401d280954b1351
     changeNotes: Logging removal.
